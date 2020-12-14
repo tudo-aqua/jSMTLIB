@@ -5,7 +5,7 @@ on:
       - master
 
 jobs:
-  release:
+  releaseJar:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -13,18 +13,47 @@ jobs:
       with:
         java-version: '11.0.9'
     - name: gradle build
+      id: jar
       run: |
         ./gradlew jar
-        ./gradlew jarWithSolvers
+        JAR_NAME=$(ls build/libs/)
+        echo "::set-output name=jar_filename::$JAR_NAME"
     - name: create nightly build
       id: create_release
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ github.ref }}
+        tag_name: nightly
         release_name: Latest Build
         body: |
           This build is always the current tip of master
         draft: false
         prerelease: true
+    - name: Add content to release
+      id: append_release_part1
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./build/libs/${{ steps.jar.outputs.jar_filename}}
+        asset_name: ${{ steps.jar.outputs.jar_filename}}
+        asset_content_type: application/java-archive
+    - name: gradle build jar with solver
+      id: jarWithSolver
+      run: |
+        ./gradlew clean jarWithSolver
+        JAR_SOLVER_NAME=$(ls build/libs/)
+        echo "::set-output name=jar_solver_filename::$JAR_SOLVER_NAME"
+    - name: Add more content to release
+      id: append_release_part2
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./build/libs/${{ steps.jarWithSolver.outputs.jar_solver_filename}}
+        asset_name: ${{ steps.jarWithSolver.outputs.jar_solver_filename}}
+        asset_content_type: application/java-archive
+
