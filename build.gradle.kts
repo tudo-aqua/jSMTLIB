@@ -12,7 +12,7 @@ plugins {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(8))
+        languageVersion.set(JavaLanguageVersion.of(11))
     }
 }
 
@@ -28,6 +28,7 @@ allprojects {
         testImplementation("junit:junit:4.12")
     }
 }
+
 sourceSets {
     main {
         java {
@@ -42,7 +43,7 @@ sourceSets {
             setSrcDirs(listOf("SMTTests/src", "SMT/test"))
         }
         resources {
-            setSrcDirs(listOf("SMTTests/tests"))
+            setSrcDirs(listOf("SMTTests/tests", "SMT/solvers"))
         }
     }
     create("solvers") {
