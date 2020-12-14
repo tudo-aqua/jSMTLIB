@@ -1,5 +1,5 @@
 name: build jars
-on: [pull_request,push]
+on: [pull_request]
 
 jobs:
   build:
@@ -10,6 +10,10 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: '11.0.9'
+      - name: gradle build
+        run: |
+          ./gradlew jar
+          ./gradlew jarWithSolvers
       - uses: actions/upload-artifact@v2
         with:
           name: producedJars
@@ -19,7 +23,7 @@ jobs:
     needs: build
     strategy:
       matrix:
-        os: [ubuntu-lastest, windows-latest,macos-latest]
+        os: [macos-latest, ubuntu-lastest, windows-latest]
         java: [8, 11]
 
     steps:
