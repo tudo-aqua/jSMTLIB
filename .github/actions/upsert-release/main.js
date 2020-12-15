@@ -16,7 +16,7 @@ async function run() {
     const prerelease = core.getInput('prerelease', { required: false }) === 'true';
     const comittisch = github.context.sha;
 
-    octokit.log.info("Create Release for comittisch: " + comittisch)
+    console.log("Create Release for comittisch: " + comittisch)
     try{
       //Check for existing release
       const existingRelease = await octokit.repos.getReleaseByTag({
@@ -35,12 +35,11 @@ async function run() {
       const delRes = await octokit.git.deleteRef({
         owner,
         repo,
-        tag
+        ref: "tags/" + tag
       });
-      console.log(delRes)
     }
     catch(error){
-      octokit.log.info("No existing release found")
+      console.log(error)
     }
     // Recreate the release
     // API Documentation: https://developer.github.com/v3/repos/releases/#create-a-release
