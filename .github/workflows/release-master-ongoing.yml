@@ -13,32 +13,30 @@ jobs:
       with:
         java-version: '11.0.9'
     - name: gradle build
-      id: jar
+      id: jarWithoutSolver
       run: |
         ./gradlew jar
         JAR_NAME=$(ls build/libs/)
         echo "::set-output name=jar_filename::$JAR_NAME"
     - name: create nightly build
       id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: ./.github/actions/upsert-release
       with:
-        tag_name: nightly
         release_name: Latest Build
         body: |
           This build is always the current tip of master
         draft: false
         prerelease: true
+        token: ${{ secrets.GITHUB_TOKEN }}
     - name: Add content to release
       id: append_release_part1
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./build/libs/${{ steps.jar.outputs.jar_filename}}
-        asset_name: ${{ steps.jar.outputs.jar_filename}}
+        upload_url: "${{ steps.create_release.outputs.upload_url }}"
+        asset_path: "./build/libs/${{ steps.jarWithoutSolver.outputs.jar_filename }}"
+        asset_name: "${{ steps.jarWithoutSolver.outputs.jar_filename }}"
         asset_content_type: application/java-archive
     - name: gradle build jar with solver
       id: jarWithSolver
@@ -52,8 +50,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./build/libs/${{ steps.jarWithSolver.outputs.jar_solver_filename}}
-        asset_name: ${{ steps.jarWithSolver.outputs.jar_solver_filename}}
+        upload_url: "${{ steps.create_release.outputs.upload_url }}"
+        asset_path: "./build/libs/${{ steps.jarWithSolver.outputs.jar_solver_filename }}"
+        asset_name: "${{ steps.jarWithSolver.outputs.jar_solver_filename }}"
         asset_content_type: application/java-archive
 
