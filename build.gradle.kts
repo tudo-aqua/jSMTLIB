@@ -8,6 +8,7 @@
 
 plugins {
     `java`
+    `maven-publish`
 }
 
 java {
@@ -19,6 +20,7 @@ java {
 allprojects {
     apply(plugin = "java-library")
     version = "0.9.10.4"
+    group = "tools.aqua.redistribution"
     repositories {
         jcenter()
         mavenCentral()
@@ -57,4 +59,25 @@ tasks.register<Jar>("jarWithSolvers") {
     archiveClassifier.set("with-solvers")
     dependsOn("solversClasses", "classes")
     from(sourceSets.main.get().output, sourceSets.getByName("solvers").output.resourcesDir)
+}
+
+publishing{
+    publications{
+        create<MavenPublication>("mavenJava") {
+            pom {
+                name.set("jSMTLIB")
+                description.set("This is a redistribution build of the original jSMTLIB.")
+                url.set("https://github.com/smtlib/jSMTLIB")
+                licenses {
+                    license{
+                        name.set("EPL-1.0")
+                        url.set("www.opensource.org/licenses/EPL-1.0")
+                    }
+                }
+                scm {
+                    url.set("https://github.com/tudo-aqua/jSMTLIB")
+                }
+            }
+        }
+    }
 }
