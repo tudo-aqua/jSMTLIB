@@ -64,6 +64,8 @@ tasks.register<Jar>("jarWithSolvers") {
 publishing{
     publications{
         create<MavenPublication>("mavenJava") {
+            artifactId = "jSMTLIB"
+            from(components["java"])
             pom {
                 name.set("jSMTLIB")
                 description.set("This is a redistribution build of the original jSMTLIB.")
